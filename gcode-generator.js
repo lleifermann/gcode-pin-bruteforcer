@@ -1,8 +1,9 @@
+//only use this for your personal devices please
 const fs = require('fs')
 
 var finalFileName = 'bruteforce.gcode'
 
-fs.readFile('./optimised-pin-length-4.txt', 'utf8' , (err, data) => {
+fs.readFile('./short-pin-lengths-4.txt', 'utf8' , (err, data) => {
   if (err) {
     console.error(err)
     return
@@ -31,11 +32,12 @@ fs.readFile('./optimised-pin-length-4.txt', 'utf8' , (err, data) => {
   const button_OK = "G0 X0 Y0"
   const button_POPUP = "G0 X20 Y18"
   const button_BACK = "G0 X36 Y0"
-  const PRESS_BUTTON = "G1 Z10"
-  const RELEASE_BUTTON = "G1 Z30"
+  const PRESS_BUTTON = "G0 Z46"
+  const RELEASE_BUTTON = "G0 Z53"
 
   const writeMove = (move) => {
     fileWriter.write(move)
+    fileWriter.write(" F500")
     fileWriter.write("\r\n")
   }
 
@@ -50,16 +52,12 @@ fs.readFile('./optimised-pin-length-4.txt', 'utf8' , (err, data) => {
   fileWriter.write(";Bruteforce GCODE leet stuff")
   fileWriter.write("\r\n")
 
-  //home
-  fileWriter.write("G28")
-  fileWriter.write("\r\n")
-
   //Set unit to mm
   fileWriter.write("G21")
   fileWriter.write("\r\n")
 
   //Move the head on the printer to a place where we have some space for the device
-  fileWriter.write("G0 X100 Y100 Z30")
+  fileWriter.write("G0 X152 Y165 Z53")
   fileWriter.write("\r\n")
 
   //Wait for positioning the phone
@@ -68,7 +66,7 @@ fs.readFile('./optimised-pin-length-4.txt', 'utf8' , (err, data) => {
 
   //Tell the printer that the current position is now to be treated as X0 Y0 and Z30
   //Keeping a Z height here allows us to press buttons
-  fileWriter.write("G92 X0 Y0 Z30")
+  fileWriter.write("G92 X0 Y0 Z53")
   fileWriter.write("\r\n")
   
   //All movement commands from here on out are absolute to the above coordinate grid
@@ -126,7 +124,7 @@ fs.readFile('./optimised-pin-length-4.txt', 'utf8' , (err, data) => {
       fileWriter.write(";Waiting for Backoff after 5 entries")
       fileWriter.write("\r\n")
       writeMove(button_BACK)
-      for (let index = 0; index < 10; index++) {
+      for (let index = 0; index < 11; index++) {
         writeMove("G4 P2000")
         pressAndRelease()
       }
